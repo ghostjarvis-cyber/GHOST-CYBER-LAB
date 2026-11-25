@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ghost Cyber Lab</title>
+  <style>
+    :root {
+      --bg-dark: #090d16;
+      --card-bg: rgba(18, 26, 43, 0.88);
+      --glass-border: rgba(56, 189, 248, 0.22);
+      --accent: #00e5ff;
+      --accent-2: #7c3aed;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --btn-bg: #162035;
+      --btn-hover: #1e2d4a;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(0, 229, 255, 0.14), transparent 35%),
+        radial-gradient(circle at 85% 80%, rgba(124, 58, 237, 0.18), transparent 40%),
+        var(--bg-dark);
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .app-container {
+      width: 100%;
+      max-width: 440px;
+      background: var(--card-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--glass-border);
+      border-radius: 24px;
+      padding: 24px 20px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .screen.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 999px;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px solid rgba(0, 229, 255, 0.35);
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      margin-bottom: 14px;
+    }
+
+    h1 {
+      font-size: 24px;
+      line-height: 1.35;
+      margin-bottom: 12px;
+      background: linear-gradient(90deg, #fff, var(--accent));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .welcome-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 16px;
+      margin-bottom: 20px;
+      line-height: 1.65;
+      color: #cbd5e1;
+      font-size: 14.5px;
+    }
+
+    .welcome-box p + p {
+      margin-top: 10px;
+    }
+
+    .btn {
+      width: 100%;
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, background 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent), #0284c7);
+      color: #041019;
+      box-shadow: 0 8px 24px rgba(0, 229, 255, 0.28);
+    }
+
+    .btn-google {
+      margin-top: 12px;
+      background: #ffffff;
+      color: #0f172a;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    }
+
+    .btn-save {
+      background: linear-gradient(135deg, var(--success), #059669);
+      color: #ffffff;
+      box-shadow: 0 8px 22px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-start {
+      padding: 18px;
+      font-size: 18px;
+      letter-spacing: 1.5px;
+      background: linear-gradient(135deg, var(--accent-2), var(--accent));
+      color: #ffffff;
+      box-shadow: 0 10px 28px rgba(0, 229, 255, 0.25);
+      margin-bottom: 18px;
+    }
+
+    .google-sheet {
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 16px;
+      background: #111b2e;
+      border: 1px solid rgba(0, 229, 255, 0.3);
+      display: none;
+    }
+
+    .google-sheet.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .google-sheet p {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+    }
+
+    /* Profile Screen */
+    .avatar-wrapper {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 12px 0 20px;
+    }
+
+    .avatar-preview {
+      width: 104px;
+      height: 104px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--accent);
+      box-shadow: 0 0 25px rgba(0, 229, 255, 0.3);
+      background: #1a253a;
+      margin-bottom: 12px;
+    }
+
+    .upload-label {
+      padding: 8px 14px;
+      border-radius: 10px;
+      background: rgba(0, 229, 255, 0.12);
+      border: 1px dashed rgba(0, 229, 255, 0.5);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    input[type="file"] {
+      display: none;
+    }
+
+    .input-group {
+      margin-bottom: 18px;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 13px 15px;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: #0d1424;
+      color: var(--text-main);
+      font-size: 15px;
+      outline: none;
+    }
+
+    .input-group input:focus {
+      border-color: var(--accent);
+    }
+
+    /* Home Screen */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .user-chip {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .user-chip img {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid var(--accent);
+    }
+
+    .user-chip .nick {
+      font-weight: 700;
+      font-size: 15px;
+    }
+
+    .user-chip .sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .small-btn {
+      padding: 7px 11px;
+      font-size: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      background: var(--btn-bg);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .menu-grid {
+      display: none;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .menu-grid.open {
+      display: grid;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .menu-btn {
+      background: var(--btn-bg);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+      color: var(--text-main);
+      padding: 13px 10px;
+      border-radius: 13px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      text-align: center;
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+    }
+
+    .menu-btn:hover {
+      background: var(--btn-hover);
+      border-color: rgba(0, 229, 255, 0.45);
+    }
+
+    .menu-btn:active {
+      transform: scale(0.97);
+    }
+
+    .menu-btn.full-width {
+      grid-column: span 2;
+    }
+
+    .content-box {
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 14px;
+      background: rgba(0, 229, 255, 0.06);
+      border: 1px solid rgba(0, 229, 255, 0.22);
+      display: none;
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    .content-box.show {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    .status-msg {
+      margin-top: 10px;
+      font-size: 13px;
+      color: var(--accent);
+      text-align: center;
+      min-height: 18px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 1. WELCOME SCREEN -->
+    <section id="welcomeScreen" class="screen active">
+      <span class="badge">GHOST CYBER LAB • v1.0</span>
+      <h1>আসসালামু আলাইকুম! স্বাগতম</h1>
+      <div class="welcome-box">
+        <p>
+          <strong>Ghost Cyber Lab</strong> অ্যাপে তোমাকে স্বাগতম। এখানে তুমি সহজেই লার্নিং রিসোর্স, কমান্ড গাইড, টুলস এবং সাপোর্ট মেনু এক জায়গায় পাবে।
+        </p>
+        <p>
+          শুরু করতে নিচের <strong>Get Login</strong> বাটনে চাপ দাও, তোমার Google অ্যাকাউন্ট দিয়ে লগইন করো এবং নিজের প্রোফাইল সেট করে মূল মেনুতে প্রবেশ করো।
+        </p>
+      </div>
+
+      <button id="getLoginBtn" class="btn btn-primary">Get Login</button>
+
+      <div id="googleOptionBox" class="google-sheet">
+        <p>তোমার মোবাইলে থাকা যেকোনো Google অ্যাকাউন্ট বেছে নিতে নিচের বাটনে চাপো:</p>
+        <button id="googleSignInBtn" class="btn btn-google">
+          <span>G</span>
+          <span>Continue with Google</span>
+        </button>
+      </div>
+      <div id="authStatus" class="status-msg"></div>
+    </section>
+
+    <!-- 2. PROFILE SETUP SCREEN -->
+    <section id="profileScreen" class="screen">
+      <span class="badge">PROFILE SETUP</span>
+      <h1>তোমার প্রোফাইল সেট করো</h1>
+
+      <div class="avatar-wrapper">
+        <img
+          id="avatarPreview"
+          class="avatar-preview"
+          src="https://via.placeholder.com/150/162035/00e5ff?text=Avatar"
+          alt="Profile Image"
+        />
+        <label for="avatarInput" class="upload-label">ছবি নির্বাচন করো</label>
+        <input type="file" id="avatarInput" accept="image/*" />
+      </div>
+
+      <div class="input-group">
+        <label for="nicknameInput">Nickname</label>
+        <input
+          type="text"
+          id="nicknameInput"
+          placeholder="তোমার স্টাইলিশ নিকনেম লেখো..."
+          maxlength="24"
+        />
+      </div>
+
+      <button id="saveProfileBtn" class="btn btn-save">Save</button>
+      <div id="profileStatus" class="status-msg"></div>
+    </section>
+
+    <!-- 3. HOME & START MENU SCREEN -->
+    <section id="homeScreen" class="screen">
+      <div class="top-bar">
+        <div class="user-chip">
+          <img id="homeAvatar" src="" alt="User" />
+          <div>
+            <div id="homeNickname" class="nick">User</div>
+            <div id="homeEmail" class="sub">Connected</div>
+          </div>
+        </div>
+        <button id="editProfileBtn" class="small-btn">Edit Profile</button>
+      </div>
+
+      <button id="startBtn" class="btn btn-start">START</button>
+
+      <div id="menuGrid" class="menu-grid">
+        <button class="menu-btn" data-topic="main_menu">📖 মূল মেনু (Main Menu)</button>
+        <button class="menu-btn" data-topic="termux_videos">🎥 Termux Videos</button>
+        <button class="menu-btn" data-topic="osint_course">🔍 OSINT কোর্স</button>
+        <button class="menu-btn" data-topic="termux_cmd">💻 Termux All Command</button>
+        <button class="menu-btn" data-topic="linux_cmd">🐧 Linux All Command</button>
+        <button class="menu-btn" data-topic="phishing">🎣 Phishing</button>
+        <button class="menu-btn" data-topic="phishing_lab">🔬 Phishing Detection Lab</button>
+        <button class="menu-btn" data-topic="support">👥 Support</button>
+        <button class="menu-btn" data-topic="help">ℹ️ Help</button>
+        <button class="menu-btn full-width" data-topic="feedback">💬 feedback</button>
+      </div>
+
+      <div id="topicContent" class="content-box"></div>
+    </section>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+    import {
+      getAuth,
+      GoogleAuthProvider,
+      signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      setDoc
+    } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBMSTYJmCLmA9Iqj4rV2seI9WzengUj_W8",
+      authDomain: "ghost-cyber-lab.firebaseapp.com",
+      projectId: "ghost-cyber-lab",
+      storageBucket: "ghost-cyber-lab.firebasestorage.app",
+      messagingSenderId: "402992779544",
+      appId: "1:402992779544:web:91d6b011586752422f0e6d"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    // Screens & Elements
+    const screens = {
+      welcome: document.getElementById("welcomeScreen"),
+      profile: document.getElementById("profileScreen"),
+      home: document.getElementById("homeScreen")
+    };
+
+    const getLoginBtn = document.getElementById("getLoginBtn");
+    const googleOptionBox = document.getElementById("googleOptionBox");
+    const googleSignInBtn = document.getElementById("googleSignInBtn");
+    const authStatus = document.getElementById("authStatus");
+
+    const avatarInput = document.getElementById("avatarInput");
+    const avatarPreview = document.getElementById("avatarPreview");
+    const nicknameInput = document.getElementById("nicknameInput");
+    const saveProfileBtn = document.getElementById("saveProfileBtn");
+    const profileStatus = document.getElementById("profileStatus");
+
+    const homeAvatar = document.getElementById("homeAvatar");
+    const homeNickname = document.getElementById("homeNickname");
+    const homeEmail = document.getElementById("homeEmail");
+    const editProfileBtn = document.getElementById("editProfileBtn");
+    const startBtn = document.getElementById("startBtn");
+    const menuGrid = document.getElementById("menuGrid");
+    const topicContent = document.getElementById("topicContent");
+
+    let currentUser = null;
+    let selectedPhotoData = "";
+
+    const menuDescriptions = {
+      main_menu: "<strong>📖 মূল মেনু:</strong> এখান থেকে সব লার্নিং সেকশন ও ল্যাবে দ্রুত যেতে পারবে।",
+      termux_videos: "<strong>🎥 Termux Videos:</strong> মোবাইল টার্মিনাল সেটআপ ও বেসিক টিউটোরিয়াল লিস্ট।",
+      osint_course: "<strong>🔍 OSINT কোর্স:</strong> ওপেন সোর্স ইন্টেলিজেন্স ও তথ্য যাচাইয়ের গাইডলাইন।",
+      termux_cmd: "<strong>💻 Termux All Command:</strong> প্রয়োজনীয় Termux কমান্ডের রেফারেন্স লিস্ট।",
+      linux_cmd: "<strong>🐧 Linux All Command:</strong> ফাইল, নেটওয়ার্ক ও পারমিশনের প্রয়োজনীয় Linux কমান্ড।",
+      phishing: "<strong>🎣 Phishing:</strong> ফিশিং আক্রমণ কীভাবে কাজ করে এবং কীভাবে নিজেকে সুরক্ষিত রাখবে।",
+      phishing_lab: "<strong>🔬 Phishing Detection Lab:</strong> সন্দেহজনক লিংক ও পেজ বিশ্লেষণের প্র্যাকটিক্যাল ল্যাব।",
+      support: "<strong>👥 Support:</strong> যেকোনো সমস্যায় সাপোর্ট টিমের সাথে যোগাযোগের তথ্য।",
+      help: "<strong>ℹ️ Help:</strong> অ্যাপটি কীভাবে ব্যবহার করবে তার সহজ নির্দেশিকা।",
+      feedback: "<strong>💬 Feedback:</strong> অ্যাপের উন্নতির জন্য তোমার মতামত বা সাজেশন জানাও।"
+    };
+
+    function showScreen(name) {
+      Object.values(screens).forEach((s) => s.classList.remove("active"));
+      screens[name].classList.add("active");
+    }
+
+    // Step 1: Click Get Login -> Show Google Option
+    getLoginBtn.addEventListener("click", () => {
+      googleOptionBox.classList.add("show");
+      authStatus.textContent = "";
+    });
+
+    // Step 2: Google Login
+    googleSignInBtn.addEventListener("click", async () => {
+      authStatus.textContent = "Google অ্যাকাউন্ট লোড হচ্ছে...";
+      try {
+        await signInWithPopup(auth, provider);
+      } catch (err) {
+        if (err.code === "auth/popup-blocked" || err.code === "auth/operation-not-supported-in-this-environment") {
+          await signInWithRedirect(auth, provider);
+        } else {
+          authStatus.textContent = "লগইন সমস্যা: " + err.message;
+        }
+      }
+    });
+
+    getRedirectResult(auth).catch((err) => {
+      if (err) authStatus.textContent = err.message;
+    });
+
+    // Image picker -> convert to compressed base64
+    avatarInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          const size = 240;
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, size, size);
+          selectedPhotoData = canvas.toDataURL("image/jpeg", 0.75);
+          avatarPreview.src = selectedPhotoData;
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Step 3: Save Profile -> Go to Home
+    saveProfileBtn.addEventListener("click", async () => {
+      if (!currentUser) return;
+      const nickname = nicknameInput.value.trim();
+      if (!nickname) {
+        profileStatus.textContent = "দয়া করে একটি Nickname লেখো।";
+        return;
+      }
+
+      saveProfileBtn.disabled = true;
+      profileStatus.textContent = "প্রোফাইল সেভ হচ্ছে...";
+
+      const finalPhoto =
+        selectedPhotoData ||
+        currentUser.photoURL ||
+        "https://via.placeholder.com/150/162035/00e5ff?text=User";
+
+      const profileData = {
+        uid: currentUser.uid,
+        email: currentUser.email || "",
+        nickname,
+        photoURL: finalPhoto,
+        updatedAt: Date.now()
+      };
+
+      try {
+        await setDoc(doc(db, "users", currentUser.uid), profileData, { merge: true });
+      } catch (_) {
+        // Fallback if Firestore rules aren't opened yet
+      }
+
+      localStorage.setItem(`profile_${currentUser.uid}`, JSON.stringify(profileData));
+      renderHome(profileData);
+      showScreen("home");
+      saveProfileBtn.disabled = false;
+      profileStatus.textContent = "";
+    });
+
+    function renderHome(data) {
+      homeAvatar.src = data.photoURL;
+      homeNickname.textContent = data.nickname;
+      homeEmail.textContent = data.email || "Active Member";
+      menuGrid.classList.remove("open");
+      topicContent.classList.remove("show");
+    }
+
+    editProfileBtn.addEventListener("click", () => {
+      showScreen("profile");
+    });
+
+    // Step 4: START button -> Show menu buttons
+    startBtn.addEventListener("click", () => {
+      menuGrid.classList.toggle("open");
+    });
+
+    document.querySelectorAll(".menu-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const key = btn.dataset.topic;
+        topicContent.innerHTML = menuDescriptions[key] || "কন্টেন্ট প্রস্তুত হচ্ছে...";
+        topicContent.classList.add("show");
+      });
+    });
+
+    // Auth state listener
+    onAuthStateChanged(auth, async (user) => {
+      currentUser = user;
+      if (!user) {
+        showScreen("welcome");
+        return;
+      }
+
+      selectedPhotoData = user.photoURL || "";
+      avatarPreview.src =
+        user.photoURL || "https://via.placeholder.com/150/162035/00e5ff?text=Avatar";
+      nicknameInput.value = user.displayName || "";
+
+      let saved = null;
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (snap.exists()) saved = snap.data();
+      } catch (_) {}
+
+      if (!saved) {
+        const localRaw = localStorage.getItem(`profile_${user.uid}`);
+        if (localRaw) saved = JSON.parse(localRaw);
+      }
+
+      if (saved && saved.nickname) {
+        nicknameInput.value = saved.nickname;
+        avatarPreview.src = saved.photoURL || avatarPreview.src;
+        selectedPhotoData = saved.photoURL || "";
+        renderHome(saved);
+        showScreen("home");
+      } else {
+        showScreen("profile");
+      }
+    });
+  </script>
+</body>
+</html>
